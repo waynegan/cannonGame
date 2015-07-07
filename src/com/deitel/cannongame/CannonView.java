@@ -4,6 +4,11 @@ package com.deitel.cannongame;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.widget.Toast;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+import android.content.SharedPreferences;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
@@ -32,16 +37,18 @@ public class CannonView extends SurfaceView
    private boolean dialogIsDisplayed = false;   
                
    // constants for game play
-   public static final int TARGET_PIECES = 1; // sections in the target
+   public static int TARGET_PIECES = 1; // sections in the target
    public static final int MISS_PENALTY = 2; // seconds deducted on a miss
    public static final int HIT_REWARD = 3; // seconds added on a hit
-
+   public static final int MISS_SCORE_PENALTY = 15;
+   public static final int HIT_SCORE_REWARD = 10; 
+   public int score=0;
    // variables for the game loop and tracking statistics
    private boolean gameOver; // is the game over?
    private double timeLeft; // time remaining in seconds
    private int shotsFired; // shots the user has fired
    private double totalElapsedTime; // elapsed seconds 
-
+   private int[] topFivePoints;
    // variables for the blocker and target
    private Line blocker; // start and end points of the blocker
    private int blockerDistance; // blocker distance from left
@@ -225,8 +232,9 @@ public class CannonView extends SurfaceView
          {
             cannonballVelocityX *= -1; // reverse cannonball's direction
             timeLeft -= MISS_PENALTY; // penalize the user
-
+            score-=MISS_SCORE_PENALTY*TARGET_PIECES;
             // play blocker sound
+            
             soundPool.play(soundMap.get(BLOCKER_SOUND_ID), 1, 1, 1, 0, 1f);
          }
          // check for collisions with left and right walls
@@ -258,7 +266,7 @@ public class CannonView extends SurfaceView
                hitStates[section] = true; // section was hit
                cannonballOnScreen = false; // remove cannonball
                timeLeft += HIT_REWARD; // add reward to remaining time
-
+               score+=HIT_SCORE_REWARD*TARGET_PIECES;
                // play target hit sound
                soundPool.play(soundMap.get(TARGET_SOUND_ID), 1,
                   1, 1, 0, 1f);
@@ -355,7 +363,37 @@ public class CannonView extends SurfaceView
 
       return angle; // return the computed angle
    } // end method alignCannon
-
+   public void setTopFive(SharedPreferences sharedPreferences)
+     {
+   	   int i=0;
+   	   Set<String> scores=sharedPreferences.getStringSet(MainActivity.SCORES, null);
+   	   if(scores!=null){
+   		   for (String s : scores) 
+   	       {
+   			   topFivePoints[i++]=Integer.parseInt(s);
+   	       }
+   		   Arrays.sort(topFivePoints);
+   	   }
+      }
+      
+     private void addHighScore(int totalPoints) {
+   		// TODO Auto-generated method stub
+   		int[] temp={totalPoints,0,0,0,0,0};
+   		System.arraycopy(topFivePoints, 0, temp, 1, 5);
+   		//System.out.println(totalPoints);
+   		//System.out.println(Arrays.toString(temp));
+   		Arrays.sort(temp);
+   		System.arraycopy(temp, 1, topFivePoints, 0, 5);
+   		//System.out.println(Arrays.toString(topFivePoints));
+   		Set<String> set = new HashSet<String>();
+   		for(int i=0;i<topFivePoints.length;i++){
+   			set.add(topFivePoints[i]+"");
+   		}
+   		SharedPreferences.Editor editor= getActivity().getSharedPreferences(MainActivity.MAIN, 0).edit();
+   		editor.putStringSet(MainActivity.SCORES, set);
+           editor.commit();
+          Toast.makeText(this.getActivity(), getResources().getString(R.string.top_of_scores)+Arrays.toString(topFivePoints), Toast.LENGTH_LONG).show();
+     }
    // draws the game to the given Canvas
    public void drawGameElements(Canvas canvas)
    {
@@ -368,6 +406,8 @@ public class CannonView extends SurfaceView
          R.string.time_remaining_format, timeLeft), 30, 50, textPaint);
       canvas.drawText(getResources().getString(
     		    	         R.string.game_level, TARGET_PIECES), 30, 100, textPaint);
+      canvas.drawText(getResources().getString(
+    		   	         R.string.highest_score, score), 30, 150, textPaint);
       // if a cannonball is currently on the screen, draw it
       if (cannonballOnScreen)
          canvas.drawCircle(cannonball.x, cannonball.y, cannonballRadius,
@@ -441,8 +481,8 @@ public class CannonView extends SurfaceView
                         dialogIsDisplayed = false;
                         if(TARGET_PIECES<9)
                           	TARGET_PIECES++;
-                        	                     else
-                        	                       	TARGET_PIECES=1;
+                           else
+      	TARGET_PIECES=1;
                         	                      hitStates = new boolean[TARGET_PIECES];
                                           pieceLength = (targetEnd - targetBeginning) / TARGET_PIECES;
                         newGame(); // set up and start a new game

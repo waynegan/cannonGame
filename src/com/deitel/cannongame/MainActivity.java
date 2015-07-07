@@ -7,6 +7,9 @@ import android.os.Bundle;
 
 public class MainActivity extends Activity
 {
+	public static final String MAIN = "MainActivity";
+		public static final String SCORES = "pref_topOfScores";
+	
    // called when the app first launches
    @Override
    public void onCreate(Bundle savedInstanceState)
