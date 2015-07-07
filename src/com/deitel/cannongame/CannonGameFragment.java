@@ -21,7 +21,7 @@ public class CannonGameFragment extends Fragment
       super.onCreateView(inflater, container, savedInstanceState);    
       View view = 
          inflater.inflate(R.layout.fragment_game, container, false);
-
+      
       // get the CannonView
       cannonView = (CannonView) view.findViewById(R.id.cannonView);
       cannonView.setTopFive(this.getActivity().getSharedPreferences(MainActivity.MAIN, 0));

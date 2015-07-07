@@ -4,20 +4,22 @@ package com.deitel.cannongame;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 
-public class MainActivity extends Activity
-{
-	public static final String MAIN = "MainActivity";
+
+public class MainActivity extends Activity {
+		public static final String MAIN = "MainActivity";
 		public static final String SCORES = "pref_topOfScores";
-	
-   // called when the app first launches
-   @Override
-   public void onCreate(Bundle savedInstanceState)
-   {
-      super.onCreate(savedInstanceState); // call super's onCreate method
-      setContentView(R.layout.activity_main); // inflate the layout
-   } 
-} // end class MainActivity
+	   // called when the app first launches
+	   @Override
+	   public void onCreate(Bundle savedInstanceState)
+	   {
+	      super.onCreate(savedInstanceState); // call super's onCreate method
+	      setContentView(R.layout.activity_main); // inflate the layout
+	      PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+	   } 
+}
+
 
 /*********************************************************************************
  * (C) Copyright 1992-2014 by Deitel & Associates, Inc. and * Pearson Education, *
