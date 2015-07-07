@@ -32,7 +32,7 @@ public class CannonView extends SurfaceView
    private boolean dialogIsDisplayed = false;   
                
    // constants for game play
-   public static final int TARGET_PIECES = 7; // sections in the target
+   public static final int TARGET_PIECES = 1; // sections in the target
    public static final int MISS_PENALTY = 2; // seconds deducted on a miss
    public static final int HIT_REWARD = 3; // seconds added on a hit
 
@@ -366,7 +366,8 @@ public class CannonView extends SurfaceView
       // display time remaining
       canvas.drawText(getResources().getString(
          R.string.time_remaining_format, timeLeft), 30, 50, textPaint);
-
+      canvas.drawText(getResources().getString(
+    		    	         R.string.game_level, TARGET_PIECES), 30, 100, textPaint);
       // if a cannonball is currently on the screen, draw it
       if (cannonballOnScreen)
          canvas.drawCircle(cannonball.x, cannonball.y, cannonballRadius,
@@ -438,6 +439,12 @@ public class CannonView extends SurfaceView
                      public void onClick(DialogInterface dialog, int which)
                      {
                         dialogIsDisplayed = false;
+                        if(TARGET_PIECES<9)
+                          	TARGET_PIECES++;
+                        	                     else
+                        	                       	TARGET_PIECES=1;
+                        	                      hitStates = new boolean[TARGET_PIECES];
+                                          pieceLength = (targetEnd - targetBeginning) / TARGET_PIECES;
                         newGame(); // set up and start a new game
                      } 
                   } // end anonymous inner class
